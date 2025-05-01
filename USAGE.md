@@ -41,7 +41,7 @@ Once installed, you can import it into your JavaScript files and start building 
 
 ### Create a Bot Instance
 
-To begin using `slchat.js`, first instantiate the `Bot` class. You will need your bot's token and bot ID to get started. These can typically be obtained from the SLChat dashboard or API.
+To begin using `slchat.js`, first instantiate the `Bot` class. You will need your bot's token and bot ID to get started.
 
 ```javascript
 const { Bot } = require('slchat.js');
@@ -174,10 +174,10 @@ Connected servers: [12345, 67890]
 3. **Changing a bot setting:**
 
 ```bash
-> set prefix !
+> set nickname BotBOTBOT
 ```
 
-This command will set the command prefix to `!`.
+This command will set the nickname to `BotBOTBOT`.
 
 4. **Shutting down the bot:**
 
@@ -254,17 +254,6 @@ Shutting down the bot...
 ```
 
 Alternatively, you can call `process.exit(0)` programmatically to stop the bot, but it’s better to handle it gracefully via the CLI.
-
----
-
-## Example Projects
-
-Here are some example projects that use `slchat.js`:
-
-1. **SLChat Bot for Server Management**: A bot that helps automate server management tasks like adding/removing users or setting permissions.
-2. **SLChat Event Reminder Bot**: A bot that reminds server members about upcoming events or schedules.
-
----
 
 ## Contributing
 
