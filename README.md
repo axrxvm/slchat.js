@@ -21,7 +21,7 @@ npm install slchat.js
 ```
 
 ## Usage
-
+### For a detailed version : [USAGE](https://github.com/axrxvm/slchat.js/blob/main/USAGE.md)
 ### Create a Bot Instance
 
 To create a new bot instance and interact with the SLChat API, you first need to instantiate the `Bot` class and run it with your token and bot ID.
