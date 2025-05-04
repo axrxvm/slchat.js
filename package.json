@@ -1,6 +1,6 @@
 {
   "name": "slchat.js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An Nodejs Wrapper for slchat API",
   "homepage": "https://github.com/axrxvm/slchat.js#readme",
   "bugs": {
