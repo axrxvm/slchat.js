@@ -216,8 +216,14 @@ class Bot extends EventEmitter {
           case "poweroff":
             Logger.info("Shutting down the bot...");
             this.emit("shutdown");
+            this.serverIds.forEach(id => {
+              const socket = this.sockets[id];
+              if (socket?.connected) {
+                socket.disconnect();
+                Logger.info(`Disconnected from server [${id}]`);
+              }
+            });
             process.exit(0); // Graceful shutdown
-            break;
           case "disconnect":
             this.serverIds.forEach(id => {
               const socket = this.sockets[id];

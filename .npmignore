@@ -2,5 +2,7 @@
 .github
 node_modules
 tests
-README.md
-
+./.gitignore
+./gitattributes
+./USAGE.json
+./package-lock.json
