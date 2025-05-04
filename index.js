@@ -187,85 +187,69 @@ class Bot extends EventEmitter {
   }
 
   startConsole() {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-
-  const helpText = `
-Available commands:
-- addserver <server_id>     : Adds a server to the bot.
-- set <key> <value>         : Changes bot settings.
-- servers                   : Lists all connected servers.
-- poweroff                  : Shuts down the bot gracefully.
-- disconnect                : Disconnects from all active servers.
-- status                    : Displays the bot's connection status.
-- broadcast <server/all> <msg>: Sends a message to one or all servers.
-- help                      : Shows this help message.
-  `;
-
-  rl.on("line", async (input) => {
-    const [cmd, ...args] = input.trim().split(" ");
-    try {
-      switch (cmd) {
-        case "addserver":
-          await this.join(args[0]);
-          break;
-        case "set":
-          await this.change(args[0], args.slice(1).join(" "));
-          break;
-        case "servers":
-          Logger.info("Connected servers:", this.serverIds);
-          break;
-        case "poweroff":
-          Logger.info("Shutting down the bot...");
-          this.emit("shutdown");
-          this.serverIds.forEach(id => {
-            const socket = this.sockets[id];
-            if (socket?.connected) {
-              socket.disconnect();
-              Logger.info(`Disconnected from server [${id}]`);
-            }
-          });
-          process.exit(0);
-          break;
-        case "disconnect":
-          this.serverIds.forEach(id => {
-            const socket = this.sockets[id];
-            if (socket?.connected) {
-              socket.disconnect();
-              Logger.info(`Disconnected from server [${id}]`);
-            }
-            delete this.sockets[id];
-          });
-          break;
-        case "status":
-          Logger.info("Bot status:");
-          Logger.info(`- Token: ${this.token}`);
-          Logger.info(`- Bot ID: ${this.botId}`);
-          Logger.info(`- Connected servers: ${this.serverIds.length}`);
-          break;
-        case "broadcast":
-          const target = args.shift();
-          const message = args.join(" ");
-          if (!message) throw new Error("No message provided");
-          if (target === "all") {
-            for (const serverId of this.serverIds) {
-              await this.send(message, serverId);
-              Logger.info(`Broadcasted to [${serverId}]`);
-            }
-          } else {
-            if (!this.serverIds.includes(target)) throw new Error(`Not connected to server [${target}]`);
-            await this.send(message, target);
-            Logger.info(`Broadcasted to [${target}]`);
-          }
-          break;
-        case "help":
-          Logger.info(helpText);
-          break;
-        default:
-          Logger.warn("Unknown CLI command:", cmd);
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  
+    const helpText = `
+  Available commands:
+  - addserver <server_id>  : Adds a server to the bot.
+  - set <key> <value>      : Changes bot settings.
+  - servers                : Lists all connected servers.
+  - poweroff               : Shuts down the bot gracefully.
+  - disconnect             : Disconnects from all active servers.
+  - status                 : Displays the bot's connection status.
+  - help                   : Shows this help message.
+    `;
+  
+    rl.on("line", async (input) => {
+      const [cmd, ...args] = input.trim().split(" ");
+      try {
+        switch (cmd) {
+          case "addserver":
+            await this.join(args[0]);
+            break;
+          case "set":
+            await this.change(args[0], args.slice(1).join(" "));
+            break;
+          case "servers":
+            Logger.info("Connected servers:", this.serverIds);
+            break;
+          case "poweroff":
+            Logger.info("Shutting down the bot...");
+            this.emit("shutdown");
+            this.serverIds.forEach(id => {
+              const socket = this.sockets[id];
+              if (socket?.connected) {
+                socket.disconnect();
+                Logger.info(`Disconnected from server [${id}]`);
+              }
+            });
+            process.exit(0); // Graceful shutdown
+          case "disconnect":
+            this.serverIds.forEach(id => {
+              const socket = this.sockets[id];
+              if (socket?.connected) {
+                socket.disconnect();
+                Logger.info(`Disconnected from server [${id}]`);
+              }
+            });
+            break;
+          case "status":
+            Logger.info("Bot status:");
+            Logger.info(`- Token: ${this.token}`);
+            Logger.info(`- Bot ID: ${this.botId}`);
+            Logger.info(`- Connected servers: ${this.serverIds.length}`);
+            break;
+          case "help":
+            Logger.info(helpText);
+            break;
+          default:
+            Logger.warn("Unknown CLI command:", cmd);
+        }
+      } catch (err) {
+        Logger.error("CLI error:", err.message);
       }
-    } catch (err) {
-      Logger.error("CLI error:", err.stack || err.message);
-    }
-  });
-}
+    });
+  }
+}  
+
 module.exports = { Bot, Context };
