@@ -21,7 +21,7 @@ lib-cov
 
 
 .env
-
+bot.js
 
 # Coverage directory used by tools like istanbul
 coverage
