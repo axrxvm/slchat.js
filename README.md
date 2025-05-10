@@ -15,6 +15,7 @@
 5. [Command Registration](#command-registration)
 6. [Sending Messages](#sending-messages)
 7. [Message Formatting](#message-formatting)
+8. [Embed Building](#embed)
 8. [Command-Line Interface (CLI)](#command-line-interface-cli)
 9. [Error Handling and Logging](#error-handling-and-logging)
 10. [Cache Management](#cache-management)
@@ -182,6 +183,12 @@ The bot can send embedded messages that include titles, descriptions, and other 
 * **Video**: `video:<url>`
 
 These allow you to send multimedia content as part of your message.
+
+---
+
+### Embed Builder
+The `EmbedBuilder` class provides a fluent interface for generating clean, styled HTML-based embeds for bots using the SLChat platform. It supports fields, attachments, icons, code blocks, and customizable layout behavior.
+### For detailed Information : [see EmbedBuilder.md](EmbedBuilder.md)
 
 ---
 

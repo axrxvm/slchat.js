@@ -199,6 +199,12 @@ You can attach images, audio, and video using the following shorthand notations:
   * Usage: `video:<url>`
 ---
 
+### Embed Builder
+The `EmbedBuilder` class provides a fluent interface for generating clean, styled HTML-based embeds for bots using the SLChat platform. It supports fields, attachments, icons, code blocks, and customizable layout behavior.
+### For detailed Information : [see EmbedBuilder.md](EmbedBuilder.md)
+
+---
+
 ## Command-Line Interface (CLI)
 
 **slchat.js** provides a simple CLI for interacting with the bot. The available commands are:
