@@ -143,7 +143,7 @@ In this example, the bot replies with "Hello, User!" unless a name is passed as 
 
 ## Sending Messages
 
-To send messages to specific servers or groups, use the `say` CLI Command.
+To send messages to specific servers or groups, use the `say` CLI Command or call the `ctx.reply` or `bot.send` function
 
 ### Message Formatting
 
