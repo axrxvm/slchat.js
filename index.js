@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 const axios = require("axios");
 const io = require("socket.io-client");
-const chalk = require("chalk");
+const chalk = require('chalk');
 const readline = require("readline");
 const EventEmitter = require("events");
 const sanitizeHtml = require("sanitize-html");
@@ -588,7 +588,7 @@ class Bot {
     }
 }
 
-// EMBED BUILDER
+// Embed Builder Implementation
 const EMBED_ICONS = {
     error:    "bx-x-circle",
     warn:     "bx-error",
@@ -598,7 +598,6 @@ const EMBED_ICONS = {
     clean:    null,
     default:  null
 };
-
 class EmbedBuilder {
     constructor(embedType = "default", title = "", description = "") {
         this.embedType = embedType;
@@ -608,10 +607,22 @@ class EmbedBuilder {
         this.authorHtml = "";
         this.fieldsHtml = [];
         this.showIcon = true;
+        this.customColor = null;
+        this.customIcon = null; 
     }
 
     setType(embedType) {
         this.embedType = embedType;
+        return this;
+    }
+
+    setColor(color) {
+        this.customColor = color;
+        return this;
+    }
+
+    setIcon(iconClass) {
+        this.customIcon = iconClass;
         return this;
     }
 
@@ -665,12 +676,13 @@ class EmbedBuilder {
     }
 
     build() {
-        const icon = EMBED_ICONS[this.embedType];
         const typeClass = this.embedType !== "default" ? ` ${this.embedType}` : "";
-        const iconParentClass = this.showIcon && icon ? "" : " block";
+        const iconParentClass = this.showIcon && (this.customIcon || EMBED_ICONS[this.embedType]) ? "" : " block";
+        const styleAttr = this.customColor ? ` style="--color: ${this.customColor}"` : "";
 
-        const iconHtml = this.showIcon && icon ? `<i class='bx ${icon}'></i><div class='inline'>` : "";
-        const iconEndHtml = this.showIcon && icon ? "</div>" : "";
+        const iconClass = this.customIcon || EMBED_ICONS[this.embedType];
+        const iconHtml = this.showIcon && iconClass ? `<i class='bx ${iconClass}'></i><div class='inline'>` : "";
+        const iconEndHtml = this.showIcon && iconClass ? "</div>" : "";
 
         const attachmentHtml = this.attachment ? `<img class='attachment' src='${this.attachment}'>` : "";
         const titleHtml = this.title ? `<h4>${this.title}</h4>` : "";
@@ -681,7 +693,7 @@ class EmbedBuilder {
             .filter(Boolean)
             .join("<br>");
 
-        return `<div class='embed${iconParentClass}${typeClass}'>${iconHtml}${combinedContent}${iconEndHtml}</div>`;
+        return `<div class='embed${iconParentClass}${typeClass}'${styleAttr}>${iconHtml}${combinedContent}${iconEndHtml}</div>`;
     }
 }
 
