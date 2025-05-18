@@ -377,8 +377,10 @@ class Bot {
      * @param {number} [attempt=0]
      */
     _connectSocket(serverId, attempt = 0) {
-        const socket = io(`https://${DOMAIN}`, {
-            query: { server: serverId, user: this.botId },
+        const socket = io(`https://${DOMAIN}?server=${serverId}`, {
+        extraHeaders: {
+            Cookie: `op=${this.botId}; token=${this.token}`
+        },
             reconnection: this.autoReconnect,
             reconnectionAttempts: this.reconnectAttempts,
             reconnectionDelay: this.reconnectBaseDelay * Math.pow(2, attempt)
@@ -414,7 +416,9 @@ class Bot {
     async getUser(id) {
         return await this.getJsonCache(`https://${DOMAIN}/api/user/${id}/`);
     }
-
+    async getServer(id) {
+    return await this.getJsonCache(`https://${DOMAIN}/api/server/${id}/`);
+    }
     /**
      * @param {string} id
      * @returns {Promise<boolean>}
@@ -474,44 +478,46 @@ class Bot {
      * @param {string} serverId
      */
     send(message, serverId) {
-        if (!this.serverIds.includes(serverId)) {
-            const err = `Bot is not in server [${serverId}]`;
-            this.onError(err, "send");
-            log(chalk.red(err));
-            return;
-        }
-        if (!message || typeof message !== "string") {
-            const err = "Invalid message: must be a non-empty string";
-            this.onError(err, "send");
-            log(chalk.red(err));
-            return;
-        }
+    if (!this.serverIds.includes(serverId)) {
+        const err = `Bot is not in server [${serverId}]`;
+        this.onError(err, "send");
+        log(chalk.red(err));
+        return;
+    }
+    if (!message || typeof message !== "string") {
+        const err = "Invalid message: must be a non-empty string";
+        this.onError(err, "send");
+        log(chalk.red(err));
+        return;
+    }
 
-        const lastSent = this.lastSent.get(serverId) || 0;
-        if (Date.now() - lastSent < RATE_LIMIT_MS) {
-            const err = `Rate limit exceeded for server [${serverId}]`;
-            this.onError(err, "send");
-            log(chalk.red(err));
-            return;
-        }
+    const lastSent = this.lastSent.get(serverId) || 0;
+    if (Date.now() - lastSent < RATE_LIMIT_MS) {
+        const err = `Rate limit exceeded for server [${serverId}]`;
+        this.onError(err, "send");
+        log(chalk.red(err));
+        return;
+    }
 
-        try {
-            const payload = {
-                text: message,
-                server_id: serverId,
-                token: this.token,
-                op: this.botId
-            };
-            this.sioInstances.get(serverId)?.emit("message", payload);
-            this.lastSent.set(serverId, Date.now());
-            this.performanceMetrics.messagesSent++;
-            log(chalk.gray(`[SEND] "${message}" -> [${serverId}]`));
-            this.events.emit("send", message, serverId);
-        } catch (err) {
-            this.performanceMetrics.errors++;
-            this.onError(err, "send");
-            errorLog(`send to [${serverId}]`, err);
+    try {
+        const payload = {
+            text: message,
+        };
+        const socket = this.sioInstances.get(serverId);
+        if (!socket) {
+            throw new Error(`No socket instance for server [${serverId}]`);
         }
+        log(chalk.blue(`[DEBUG] Emitting message to [${serverId}]: ${JSON.stringify(payload)}`));
+        socket.emit("message", payload);
+        this.lastSent.set(serverId, Date.now());
+        this.performanceMetrics.messagesSent++;
+        log(chalk.gray(`[SEND] "${message}" -> [${serverId}]`));
+        this.events.emit("send", message, serverId);
+    } catch (err) {
+        this.performanceMetrics.errors++;
+        this.onError(err, "send");
+        errorLog(`send to [${serverId}]`, err);
+    }
     }
 
     /**
@@ -608,7 +614,7 @@ class EmbedBuilder {
         this.fieldsHtml = [];
         this.showIcon = true;
         this.customColor = null;
-        this.customIcon = null; 
+        this.customIcon = null;
     }
 
     setType(embedType) {
