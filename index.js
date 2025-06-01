@@ -66,6 +66,10 @@ function successLog(msg) {
     console.log(chalk.green(`[SUCCESS] ${msg}`));
 }
 
+function infoLog(msg) {
+    console.log(chalk.blue(`[INFO] ${msg}`));
+}   
+
 /**
  * @param {string} name
  * @param {Function} func
@@ -263,10 +267,6 @@ class Bot {
                 case "listservers":
                     console.log(this.serverIds.length ? this.serverIds.join("\n") : "(none)");
                     break;
-                case "addserver":
-                    if (!args[0]) return console.log("Usage: addServer <server_id>");
-                    this.join(args[0]);
-                    break;
                 case "change":
                     if (!args[0] || !args[1]) return console.log("Usage: change <key> <value>");
                     this.change(args[0], args[1]);
@@ -292,7 +292,7 @@ class Bot {
                     }
                     break;
                 default:
-                    console.log("CLI Commands: status, listServers, addServer <id>, change <key> <value>, exit, say <all|server1,server2,...> <message>");
+                    console.log("CLI Commands: status, listServers, change <key> <value>, exit, say <all|server1,server2,...> <message>");
             }
         });
     }
@@ -520,45 +520,6 @@ class Bot {
     }
     }
 
-    /**
-     * @param {string} serverId
-     */
-    async join(serverId) {
-        if (!serverId) {
-            const err = "Server ID is required";
-            this.onError(err, "join");
-            log(chalk.red(err));
-            return;
-        }
-        if (this.serverIds.includes(serverId)) {
-            const msg = `Bot is already in server [${serverId}]`;
-            this.onError(msg, "join");
-            log(chalk.yellow(msg));
-            return;
-        }
-
-        try {
-            const payload = new URLSearchParams({ server_id: serverId });
-            const headers = {
-                "Content-Type": "application/x-www-form-urlencoded",
-                Cookie: `token=${encodeURIComponent(this.token)}; op=${encodeURIComponent(this.botId)}`
-            };
-
-            await axios.post(`https://${DOMAIN}/api/new_server`, payload.toString(), {
-                headers,
-                withCredentials: true
-            });
-
-            this.serverIds.push(serverId);
-            this._connectSocket(serverId);
-            successLog(`Joined server [${serverId}]`);
-            this.events.emit("join", serverId);
-        } catch (err) {
-            this.performanceMetrics.errors++;
-            this.onError(err, "join");
-            errorLog("join", err);
-        }
-    }
 
     /**
      * @param {string} key
@@ -765,4 +726,4 @@ class Context {
     }
 }
 
-module.exports = { Bot, Context, command, log, errorLog, successLog, formatMessage, EmbedBuilder };
+module.exports = { Bot, Context, command, log, errorLog, successLog, infoLog, formatMessage, EmbedBuilder, EMBED_TYPES, DOMAIN, RATE_LIMIT_MS, CACHE_TTL_MS, commandDict, FORMAT_SHORTCUTS };
